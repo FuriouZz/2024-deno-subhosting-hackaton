@@ -4,6 +4,7 @@ import { jsx } from "$hono/jsx/index.ts";
 import { serveStatic } from "$hono/middleware.ts";
 import App from "./App.tsx";
 import Client from "./subhosting.ts";
+import build from "./lume/build.ts";
 
 const shc = new Client();
 const app = new Hono();
@@ -27,19 +28,33 @@ app.get("/deployments", async (c) => {
 app.post("/deployment", async (c) => {
   const body = await c.req.json();
 
+  // const dr = await shc.createDeployment(body.projectId, {
+  //   entryPointUrl: "main.ts",
+  //   assets: {
+  //     "main.ts": {
+  //       "kind": "file",
+  //       "content": body.code,
+  //       "encoding": "utf-8",
+  //     },
+  //   },
+  //   envVars: {},
+  // });
+
+  const assets = await build({
+    [`/posts/${new Date().toISOString().slice(0, 10)}-post.md`]: body.code,
+  });
+
+  console.log("Create deployment");
   const dr = await shc.createDeployment(body.projectId, {
     entryPointUrl: "main.ts",
-    assets: {
-      "main.ts": {
-        "kind": "file",
-        "content": body.code,
-        "encoding": "utf-8",
-      },
-    },
+    assets,
     envVars: {},
   });
+
+  console.log("Wait response");
   const deploymentResponse = await dr.json();
 
+  console.log("Send response");
   return c.json(deploymentResponse);
 });
 

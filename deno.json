@@ -1,8 +1,13 @@
 {
   "tasks": {
-    "dev": "deno run -A --watch --env main.tsx"
+    "dev": "deno run -A --watch --env main.tsx",
+    "lume": "echo \"import 'lume/cli.ts'\" | deno run --unstable -A - --config lume/config.ts",
+    "build": "deno task lume"
   },
   "imports": {
-    "$hono/": "https://deno.land/x/hono@v3.12.0/"
+    "$hono/": "https://deno.land/x/hono@v3.12.0/",
+    "$std/": "https://deno.land/std@v0.212.0/",
+    "lume/": "https://deno.land/x/lume@v2.0.3/",
+    "theme/": "https://deno.land/x/furiouzz@0.0.8/lume-blog-theme/"
   }
 }

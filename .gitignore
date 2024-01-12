@@ -35,3 +35,6 @@ junit.xml
 # Jupyter files
 .ipynb_checkpoints/
 Untitled*.ipynb
+
+# lume files
+_site

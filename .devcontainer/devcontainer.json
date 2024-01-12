@@ -1,0 +1,23 @@
+{
+  "name": "denolibs",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "deno.enable": true,
+        "deno.lint": true,
+        "deno.cacheOnSave": true,
+        "editor.defaultFormatter": "denoland.vscode-deno"
+      },
+      "extensions": [
+        "denoland.vscode-deno",
+        "shd101wyy.markdown-preview-enhanced",
+        "yzhang.markdown-all-in-one",
+        "sleistner.vscode-fileutils"
+      ]
+    }
+  },
+  "remoteUser": "vscode"
+}

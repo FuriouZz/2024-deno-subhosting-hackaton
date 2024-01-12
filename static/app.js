@@ -9,8 +9,8 @@ function setDeployments(deployments) {
     let html = "";
     deployments.forEach((deployment) => {
       html += `<div class="deployment-line">
-        <a href="https://${deployment.domains[0]}" target="_blank">
-          ${deployment.domains[0] || "URL pending..."}
+        <a href="https://${deployment.domains?.[0]}" target="_blank">
+          ${deployment.domains?.[0] || "URL pending..."}
         </a>
         <span class="timestamp">
           <span class="status ${deployment.status}">${deployment.status}</span>
@@ -62,12 +62,15 @@ window.onload = function () {
   editor = ace.edit("editor");
   editor.session.setTabSize(2);
   editor.setTheme("ace/theme/chrome");
-  editor.session.setMode("ace/mode/typescript");
+  editor.session.setMode("ace/mode/markdown");
   editor.setValue(
-    `Deno.serve(() => {
-  console.log("Responding hello...");
-  return new Response("Hello, subhosting!");
-});`,
+    `---
+title: First post
+layout: layouts/post.vto
+author: furiouzz
+basename: ../posts
+---
+My first blog post`,
     -1,
   );
 
