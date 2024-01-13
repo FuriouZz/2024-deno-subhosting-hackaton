@@ -66,9 +66,6 @@ window.onload = function () {
   editor.setValue(
     `---
 title: First post
-layout: layouts/post.vto
-author: furiouzz
-basename: ../posts
 ---
 My first blog post`,
     -1,

@@ -1,5 +1,6 @@
 import { join } from "$std/path/join.ts";
 import { encodeBase64 } from "$hono/utils/encode.ts";
+import { extract } from "lume/deps/front_matter.ts";
 
 interface IAsset {
   kind: "file" | "symlink";
@@ -8,36 +9,34 @@ interface IAsset {
   gitSha1?: string;
 }
 
-export default async function build(posts: Record<string, string>) {
+export default async function build(
+  pages: Record<string, { body: string; type: "post" | "page" }>,
+) {
   const assets: Record<string, IAsset> = {};
 
   const { default: site } = await import("./config.ts");
 
-  Object.entries(posts).forEach(([key, value]) => {
-    site.remoteFile(key, `data:text/plain;base64,${btoa(value)}`);
+  // Register posts and stores urls
+  const urls = Object.entries(pages).map(([url, value]) => {
+    const { attrs, body } = extract(value.body);
+    const scope = value.type === "post" ? "/posts" : "/pages";
+    site.page({ ...attrs, content: body, url }, scope);
+    return url;
   });
 
-  const filenames = Object.keys(posts);
-  site.preprocess([".md"], (pages) => {
-    pages.forEach((page) => {
-      if (page.src.entry?.name && filenames.includes(page.src.entry.name)) {
-        delete page.src.entry;
-      }
-    });
+  // Fix: Pass markdown pages to (pre)processor with ".md" extension
+  site.addEventListener("beforeRender", ({ pages }) => {
+    pages
+      .filter((page) => urls.includes(page.data.url))
+      .forEach((page) => page.src.ext = ".md");
   });
 
   const files: string[] = [];
   site.addEventListener("afterBuild", ({ pages, staticFiles }) => {
-    pages.forEach((page) => {
-      files.push(page.outputPath);
-    });
-    staticFiles.forEach((s) => {
-      files.push(s.outputPath);
-    });
+    pages.forEach((page) => files.push(page.outputPath));
+    staticFiles.forEach((s) => files.push(s.outputPath));
   });
   await site.build();
-
-  // console.log([...site.fs.entries.keys()]);
 
   for (const file of files) {
     const path = join("_site", file);
@@ -52,7 +51,7 @@ export default async function build(posts: Record<string, string>) {
   assets["main.ts"] = {
     kind: "file",
     encoding: "utf-8",
-    content: Deno.readTextFileSync(join(site.src(), "serve.ts")),
+    content: Deno.readTextFileSync(join(site.src(), "../serve.ts")),
   };
 
   return assets;

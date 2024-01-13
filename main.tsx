@@ -41,9 +41,13 @@ app.post("/deployment", async (c) => {
   // });
 
   const assets = await build({
-    [`/posts/${new Date().toISOString().slice(0, 10)}-post.md`]: body.code,
+    "/post/": {
+      body: body.code,
+      type: "post",
+    },
   });
 
+  // return new Response("cool");
   console.log("Create deployment");
   const dr = await shc.createDeployment(body.projectId, {
     entryPointUrl: "main.ts",
