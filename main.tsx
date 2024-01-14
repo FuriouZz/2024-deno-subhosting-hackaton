@@ -28,37 +28,24 @@ app.get("/deployments", async (c) => {
 app.post("/deployment", async (c) => {
   const body = await c.req.json();
 
-  // const dr = await shc.createDeployment(body.projectId, {
-  //   entryPointUrl: "main.ts",
-  //   assets: {
-  //     "main.ts": {
-  //       "kind": "file",
-  //       "content": body.code,
-  //       "encoding": "utf-8",
-  //     },
-  //   },
-  //   envVars: {},
-  // });
-
   const assets = await build({
-    "/post/": {
-      body: body.code,
-      type: "post",
+    themeURL: "https://deno.land/x/furiouzz@0.0.12/lume-blog-theme/mod.ts",
+    pages: {
+      "/post/": {
+        body: body.code,
+        type: "post",
+      },
     },
   });
 
   // return new Response("cool");
-  console.log("Create deployment");
   const dr = await shc.createDeployment(body.projectId, {
     entryPointUrl: "main.ts",
     assets,
     envVars: {},
   });
 
-  console.log("Wait response");
   const deploymentResponse = await dr.json();
-
-  console.log("Send response");
   return c.json(deploymentResponse);
 });
 

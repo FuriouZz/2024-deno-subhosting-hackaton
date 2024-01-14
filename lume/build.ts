@@ -1,6 +1,8 @@
 import { join } from "$std/path/join.ts";
 import { encodeBase64 } from "$hono/utils/encode.ts";
 import { extract } from "lume/deps/front_matter.ts";
+import lume from "lume/mod.ts";
+import { fromFileUrl } from "lume/deps/path.ts";
 
 interface IAsset {
   kind: "file" | "symlink";
@@ -9,12 +11,15 @@ interface IAsset {
   gitSha1?: string;
 }
 
-export default async function build(
-  pages: Record<string, { body: string; type: "post" | "page" }>,
-) {
+export default async function build({ themeURL, pages }: {
+  themeURL: string;
+  pages: Record<string, { body: string; type: "post" | "page" }>;
+}) {
   const assets: Record<string, IAsset> = {};
 
-  const { default: site } = await import("./config.ts");
+  const { default: theme } = await import(themeURL);
+  const site = lume({ src: "./lume", dest: `./lume/_site` });
+  site.use(theme());
 
   // Register posts and stores urls
   const urls = Object.entries(pages).map(([url, value]) => {
@@ -51,7 +56,9 @@ export default async function build(
   assets["main.ts"] = {
     kind: "file",
     encoding: "utf-8",
-    content: Deno.readTextFileSync(join(site.src(), "../serve.ts")),
+    content: Deno.readTextFileSync(
+      fromFileUrl(import.meta.resolve("./serve.ts")),
+    ),
   };
 
   return assets;
