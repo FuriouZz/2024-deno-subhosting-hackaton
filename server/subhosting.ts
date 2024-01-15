@@ -73,7 +73,7 @@ function normalize(strArray: Array<string>) {
 /**
  * Subhosting API client initialization options.
  */
-export default interface ClientOptions {
+export interface ClientOptions {
   /**
    * API endpoint to use for the client. Defaults to:
    * "https://api.deno.com/v1"

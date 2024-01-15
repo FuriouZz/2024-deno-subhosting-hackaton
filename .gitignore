@@ -38,3 +38,6 @@ Untitled*.ipynb
 
 # lume files
 _site
+
+# client files
+dist

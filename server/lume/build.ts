@@ -1,8 +1,8 @@
 import { join } from "$std/path/join.ts";
 import { encodeBase64 } from "$hono/utils/encode.ts";
-import { extract } from "lume/deps/front_matter.ts";
-import lume from "lume/mod.ts";
-import { fromFileUrl } from "lume/deps/path.ts";
+import { extract } from "$lume/deps/front_matter.ts";
+import lume from "$lume/mod.ts";
+import { fromFileUrl } from "$lume/deps/path.ts";
 
 interface IAsset {
   kind: "file" | "symlink";
@@ -18,7 +18,7 @@ export default async function build({ themeURL, pages }: {
   const assets: Record<string, IAsset> = {};
 
   const { default: theme } = await import(themeURL);
-  const site = lume({ src: "./lume", dest: `./lume/_site` });
+  const site = lume({ src: "./server/lume", dest: `./server/lume/_site` });
   site.use(theme());
 
   // Register posts and stores urls

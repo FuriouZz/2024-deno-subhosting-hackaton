@@ -32,7 +32,7 @@ async function pollData() {
 
   try {
     // Get list of all deployments
-    const dr = await fetch(`/deployments?projectId=${projectId}`);
+    const dr = await fetch(`/api/deployment?projectId=${projectId}`);
     const deployments = await dr.json();
     setDeployments(deployments);
   } catch (e) {
@@ -47,7 +47,7 @@ async function saveAndDeploy(e) {
 
   const projectId = getProjectId();
 
-  const dr = await fetch(`/deployment`, {
+  const dr = await fetch(`/api/deployment`, {
     method: "POST",
     body: JSON.stringify({
       projectId,
