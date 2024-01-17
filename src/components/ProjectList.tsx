@@ -6,7 +6,9 @@ import {
 import useAsync from "@/hooks/useAsync.ts";
 import { getProjects, IProject } from "@/lib/api.ts";
 
-const location = new URL(window.location.href);
+const location = new URL(
+  import.meta.env.SSR ? "http://localhost/" : globalThis.location.href,
+);
 const pattern = /^\/projects\/(.+)/;
 const [_, projectId] = location.pathname.match(pattern) ?? [];
 

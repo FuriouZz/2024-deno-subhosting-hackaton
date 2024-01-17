@@ -2,7 +2,7 @@ import { Hono } from "$hono/mod.ts";
 import { serveStatic } from "$hono/middleware.ts";
 import routes from "server/routes.tsx";
 
-const templateHtml = Deno.readTextFileSync("./client/dist/client/index.html");
+const templateHtml = Deno.readTextFileSync("./dist/client/index.html");
 // const ssrManifest = Deno.readTextFileSync(
 //   "./client/dist/client/.vite/ssr-manifest.json",
 // );
@@ -11,10 +11,10 @@ const app = new Hono();
 
 app.route("/", routes);
 
-app.use("/assets/*", serveStatic({ root: "./client/dist/client/" }));
+app.use("/assets/*", serveStatic({ root: "./dist/client/" }));
 
 app.get("*", async (c) => {
-  const { render } = await import("./client/dist/server/entry.server.js");
+  const { render } = await import("./dist/server/entry.server.mjs");
 
   const rendered = render();
 

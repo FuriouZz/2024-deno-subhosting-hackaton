@@ -17,8 +17,6 @@ export default function DeploymentList(
 
   React.useEffect(() => {
     if (!deployments) return;
-    console.log(deployments);
-
     const values = deployments.filter((d) => {
       return Array.isArray(d.domains) && d.domains.length > 0;
     }).map((d) => ({
