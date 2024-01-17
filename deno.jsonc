@@ -1,8 +1,8 @@
 {
   "nodeModulesDir": true,
   "tasks": {
-    "dev": "deno run -A --env --watch server.dev.ts & deno run -A npm:vite --mode dev",
-    "serve": "deno run -A --env --watch server.ts",
+    "dev": "deno run -A --env --watch server/dev.ts & deno run -A npm:vite --mode dev",
+    "serve": "deno run -A --env --watch server/main.ts",
 
     "vite:dev": "deno run -A npm:vite",
     "vite:build": "deno run -A npm:vite build",

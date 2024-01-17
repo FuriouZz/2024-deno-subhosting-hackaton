@@ -4,7 +4,7 @@ import routes from "server/routes.tsx";
 
 const templateHtml = Deno.readTextFileSync("./dist/client/index.html");
 // const ssrManifest = Deno.readTextFileSync(
-//   "./client/dist/client/.vite/ssr-manifest.json",
+//   "./dist/client/.vite/ssr-manifest.json",
 // );
 
 const app = new Hono();
@@ -14,7 +14,7 @@ app.route("/", routes);
 app.use("/assets/*", serveStatic({ root: "./dist/client/" }));
 
 app.get("*", async (c) => {
-  const { render } = await import("./dist/server/entry.server.mjs");
+  const { render } = await import("../dist/server/entry.server.mjs");
 
   const rendered = render();
 
