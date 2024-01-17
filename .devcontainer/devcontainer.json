@@ -1,5 +1,5 @@
 {
-  "name": "denolibs",
+  "name": "deno-subhosting-hackaton",
   "build": {
     "dockerfile": "Dockerfile"
   },
@@ -8,8 +8,7 @@
       "settings": {
         "deno.enable": true,
         "deno.lint": true,
-        "deno.cacheOnSave": true,
-        "editor.defaultFormatter": "denoland.vscode-deno"
+        "deno.cacheOnSave": true
       },
       "extensions": [
         "denoland.vscode-deno",
@@ -19,5 +18,5 @@
       ]
     }
   },
-  "remoteUser": "vscode"
+  "remoteUser": "node"
 }

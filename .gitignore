@@ -40,4 +40,9 @@ Untitled*.ipynb
 _site
 
 # client files
+.vite
 dist
+
+# pnpm
+.pnpm-store
+node_modules
