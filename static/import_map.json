@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "@codemirror/": "https://deno.land/x/codemirror_esm@v6.0.1/esm/",
+    "lit": "https://cdn.jsdelivr.net/gh/lit/dist@3/core/lit-core.min.js"
+  }
+}

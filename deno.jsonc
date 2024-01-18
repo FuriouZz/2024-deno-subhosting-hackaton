@@ -1,67 +1,21 @@
 {
+  "lock": false,
   "nodeModulesDir": true,
   "tasks": {
-    "dev": "deno run -A --env --watch server/dev.ts & deno run -A npm:vite --mode dev",
-    "serve": "deno run -A --env --watch server/main.ts",
-
-    "vite:dev": "deno run -A npm:vite",
-    "vite:build": "deno run -A npm:vite build",
-    "vite:preview": "deno run -A npm:vite preview",
-    "vite:serve": "deno run --allow-net --allow-read https://deno.land/std@0.157.0/http/file_server.ts dist/",
-
-    "ssr:build": "deno task ssr:build:client && deno task ssr:build:server",
-    "ssr:build:client": "deno run -A npm:vite build --ssrManifest --outDir dist/client",
-    "ssr:build:server": "deno run -A npm:vite build --ssr src/entry.server.tsx --outDir dist/server",
-
-    "ssr:watch": "deno task ssr:watch:client & deno task ssr:watch:server",
-    "ssr:watch:client": "deno run -A npm:vite build --watch --ssrManifest --outDir dist/client",
-    "ssr:watch:server": "deno run -A npm:vite build --watch --ssr src/entry.server.tsx --outDir dist/server"
+    "serve": "deno run -A --unstable --env --watch=routes,components main.ts",
+    "build": "deno run -A --env build.ts",
+    "dev": "deno task serve & deno task build --watch"
   },
   "imports": {
     "$hono/": "https://deno.land/x/hono@v3.12.4/",
     "$std/": "https://deno.land/std@v0.212.0/",
     "$lume/": "https://deno.land/x/lume@v2.0.3/",
-    "server/": "./server/",
+    "@codemirror/": "https://deno.land/x/codemirror_esm@v6.0.1/esm/",
+    "lit": "https://cdn.jsdelivr.net/gh/lit/dist@3/core/lit-core.min.js",
+    "esbuild/": "https://deno.land/x/esbuild@v0.19.11/",
+    "esbuild_deno_loader/": "https://deno.land/x/esbuild_deno_loader@0.8.3/",
 
-    // Codemirror
-    "codemirror": "npm:codemirror@^6.0.1",
-    "@codemirror/lang-markdown": "npm:@codemirror/lang-markdown@^6.2.3",
-    "@codemirror/state": "npm:@codemirror/state@^6.4.0",
-    "@codemirror/view": "npm:@codemirror/view@^6.23.0",
-
-    // React
-    "react": "npm:react@^18.2.0",
-    "react/jsx-runtime": "npm:react@^18.2.0/jsx-runtime",
-    "react-dom": "npm:react-dom@^18.2.0",
-    "react-dom/client": "npm:react-dom@^18.2.0/client",
-    "react-dom/server": "npm:react-dom@^18.2.0/server",
-    "@preact/signals-react": "npm:@preact/signals-react@^2.0.0",
-    "@preact/signals-react/": "npm:/@preact/signals-react@^2.0.0/",
-
-    // Vite
-    "vite": "npm:vite@^5.0.10",
-    "@vitejs/plugin-react": "npm:@vitejs/plugin-react@^4.2.1",
-    "@/": "./src/",
-
-    // Tailwind
-    "autoprefixer": "npm:autoprefixer@^10.4.16",
-    "postcss": "https://esm.sh/postcss@8.4.33",
-    "tailwindcss": "npm:tailwindcss@3.3.5",
-    "tailwindcss/": "npm:/tailwindcss@3.3.5/",
-    "tailwindcss/plugin": "npm:/tailwindcss@3.3.5/plugin.js",
-    "tailwindcss/animate": "npm:tailwindcss-animate@^1.0.7",
-
-    // shadcn/ui
-    "react-resizable-panels": "npm:react-resizable-panels@^1.0.9",
-    "tailwind-merge": "npm:tailwind-merge@^2.2.0",
-    "tailwindcss-animate": "npm:tailwindcss-animate@^1.0.7",
-    "@radix-ui/react-dialog": "npm:@radix-ui/react-dialog@^1.0.5",
-    "@radix-ui/react-icons": "npm:@radix-ui/react-icons@^1.3.0",
-    "@radix-ui/react-popover": "npm:@radix-ui/react-popover@^1.0.7",
-    "@radix-ui/react-slot": "npm:@radix-ui/react-slot@^1.0.2",
-    "class-variance-authority": "npm:class-variance-authority@^0.7.0",
-    "clsx": "npm:clsx@^2.1.0",
-    "cmdk": "npm:cmdk@^0.2.0",
-    "vaul": "npm:vaul@^0.8.0"
+    // Aliases
+    "@/": "./"
   }
 }
