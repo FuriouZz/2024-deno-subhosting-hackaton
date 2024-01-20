@@ -214,6 +214,17 @@ export default class SubhostingClient {
   }
 
   /**
+   * Create a project within the configured organization for the client. Docs:
+   * https://docs.deno.com/deploy/api/rest/organizations#create-a-new-project-for-an-organization
+   *
+   * @param id project id
+   * @returns promise for a fetch Response object
+   */
+  getProject(id: string): Promise<Response> {
+    return this.fetch(`/projects/${id}`);
+  }
+
+  /**
    * Get a list of deployments for the given project, with optional query params:
    * https://docs.deno.com/deploy/api/rest/projects#get-project-deployments
    *

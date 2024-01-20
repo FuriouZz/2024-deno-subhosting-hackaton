@@ -26,7 +26,17 @@ globalThis.customElements.define(
 
     firstUpdated() {
       this.view = new EditorView({
-        extensions: [basicSetup, markdown(), FoldStrikeTags],
+        extensions: [
+          basicSetup,
+          markdown(),
+          FoldStrikeTags,
+          EditorView.updateListener.of((v) => {
+            if (v.docChanged) {
+              // Document changed
+              this.dispatchEvent(new CustomEvent("sl-input"));
+            }
+          }),
+        ],
         parent: this.renderRoot,
         doc: `
         # hello
@@ -36,7 +46,6 @@ globalThis.customElements.define(
         ~~yolo~~
             `,
       });
-      console.log("create");
     }
 
     updated() {

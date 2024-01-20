@@ -21,6 +21,8 @@ export interface IUserPrefs {
   id: number;
   author: string;
   themeURL: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface IPage {
@@ -28,4 +30,6 @@ export interface IPage {
   type: "post" | "page";
   name: string;
   body: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
