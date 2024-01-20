@@ -2,6 +2,7 @@
 *.pyc
 *.swp
 .env
+tmp/*
 
 /.cargo_home/
 /.idea/
@@ -37,7 +38,7 @@ junit.xml
 Untitled*.ipynb
 
 # lume files
-_site
+lib/lume/_site
 
 # client files
 .vite

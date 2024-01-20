@@ -1,7 +1,7 @@
 /** @jsx jsx */
-import { jsx } from "$hono/middleware.ts";
+import { jsx } from "hono/middleware.ts";
 import ProjectList from "@/components/ProjectList.tsx";
-import { css, cx } from "$hono/helper/css/index.ts";
+import { css, cx } from "hono/helper/css/index.ts";
 
 const styl = {
   Root: css`

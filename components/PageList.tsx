@@ -1,8 +1,8 @@
 /** @jsx jsx */
-import { Fragment, jsx } from "$hono/middleware.ts";
+import { Fragment, jsx } from "hono/middleware.ts";
 import { IPage } from "@/lib/types.ts";
 import { PageModel } from "@/lib/models.ts";
-import { css } from "$hono/helper/css/index.ts";
+import { css } from "hono/helper/css/index.ts";
 
 const styl = {
   Anchor: css`

@@ -7,12 +7,14 @@
     "dev": "deno task serve & deno task build --watch"
   },
   "imports": {
-    "$hono/": "https://deno.land/x/hono@v3.12.4/",
-    "$std/": "https://deno.land/std@v0.212.0/",
-    "$lume/": "https://deno.land/x/lume@v2.0.3/",
+    "hono/": "https://deno.land/x/hono@v3.12.4/",
+    "std/": "https://deno.land/std@v0.212.0/",
+    "lume/": "https://deno.land/x/lume@v2.0.3/",
     "@codemirror/": "https://deno.land/x/codemirror_esm@v6.0.1/esm/",
     "lit": "https://esm.sh/lit@3.1.1",
     "lit/": "https://esm.sh/lit@3.1.1/",
+    "@furiouzz/reactive": "https://esm.sh/@furiouzz/reactive@2.0.0-beta.0",
+    "@furiouzz/reactive/": "https://esm.sh/@furiouzz/reactive@2.0.0-beta.0/",
     "esbuild/": "https://deno.land/x/esbuild@v0.19.11/",
     "esbuild_deno_loader/": "https://deno.land/x/esbuild_deno_loader@0.8.3/",
 

@@ -1,7 +1,7 @@
 /** @jsx jsx */
-import { jsx } from "$hono/middleware.ts";
+import { jsx } from "hono/middleware.ts";
 import { PageModel } from "@/lib/models.ts";
-import { css, cx } from "$hono/helper/css/index.ts";
+import { css, cx } from "hono/helper/css/index.ts";
 
 export interface ProjectPageProps {
   projectId: string;
@@ -87,18 +87,8 @@ export default async function ProjectPage(props: ProjectPageProps) {
           </sl-breadcrumb-item>
           <sl-breadcrumb-item>
             {page.type[0].toUpperCase() + page.type.slice(1)}
-            <sl-dropdown slot="suffix" placement="bottom-start">
-              <sl-button slot="trigger" size="small" circle>
-                <span style="display: inline-block; width: 0px; visibility: hidden; ">
-                  a
-                </span>
-                <sl-icon label="More options" name="three-dots"></sl-icon>
-              </sl-button>
-              <sl-menu>
-                <sl-menu-item>Deploy</sl-menu-item>
-                <sl-menu-item>Preview</sl-menu-item>
-              </sl-menu>
-            </sl-dropdown>
+            <fu-page-actions slot="suffix" project-id={props.projectId}>
+            </fu-page-actions>
           </sl-breadcrumb-item>
         </sl-breadcrumb>
         <sl-divider></sl-divider>
@@ -167,6 +157,13 @@ export default async function ProjectPage(props: ProjectPageProps) {
                     <sl-option value="post">Post</sl-option>
                   </sl-select>
 
+                  <sl-checkbox
+                    name="draft"
+                    checked={page.draft}
+                  >
+                    Draft
+                  </sl-checkbox>
+
                   <span class={cx("error-message", styl.ErrorMessage)}>
                   </span>
 
@@ -183,6 +180,8 @@ export default async function ProjectPage(props: ProjectPageProps) {
           </iframe>
         </div>
       </sl-split-panel>
+
+      <fu-project-sse project-id={props.projectId}></fu-project-sse>
     </div>
   );
 }

@@ -1,6 +1,8 @@
 import { css, html, LitElement } from "lit";
 import { repeat } from "lit/directives/repeat.js";
 import { createRef, ref } from "lit/directives/ref.js";
+import { createEffect } from "@furiouzz/reactive";
+import { PagesSignal } from "@/islands/lib/store.js";
 
 const styles = css`
 :host {
@@ -45,32 +47,10 @@ globalThis.customElements.define(
     alertElement = createRef();
 
     firstUpdated() {
-      this.createSource();
+      createEffect(() => this._pages = PagesSignal());
+
       this.buttonRef.value?.addEventListener("click", () => {
         this.deletePage();
-      });
-    }
-
-    updated(changed) {
-      if (changed.has("projectId")) {
-        if (this.source) this.source.close();
-        this.createSource();
-      }
-    }
-
-    createSource() {
-      if (!this.projectId) return;
-
-      this.source = new EventSource(
-        `/api/projects/${this.projectId}/pages/sse`,
-      );
-
-      this.source.addEventListener("change", (e) => {
-        try {
-          this._pages = JSON.parse(e.data);
-        } catch (e) {
-          console.warn(e);
-        }
       });
     }
 

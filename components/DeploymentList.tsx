@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import { jsx } from "$hono/middleware.ts";
+import { jsx } from "hono/middleware.ts";
 import SubhostingClient from "@/lib/SubhostingClient.ts";
 import { IDeployment, IProject } from "@/lib/types.ts";
 

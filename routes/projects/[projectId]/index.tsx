@@ -1,6 +1,6 @@
 /** @jsx jsx */
-import { jsx } from "$hono/middleware.ts";
-import { css, cx } from "$hono/helper/css/index.ts";
+import { jsx } from "hono/middleware.ts";
+import { css, cx } from "hono/helper/css/index.ts";
 import SubhostingClient from "@/lib/SubhostingClient.ts";
 import { IDeployment } from "@/lib/types.ts";
 import PageList from "@/components/PageList.tsx";
@@ -88,44 +88,39 @@ export default async function ProjectPage(props: ProjectPageProps) {
         </div>
 
         <fu-create-page-form>
-          <sl-drawer slot="drawer" label="Drawer" class="drawer-overview">
-            <form
-              action={`/api/projects/${props.projectId}/pages`}
-              method="POST"
-              class={styl.Form}
+          <form
+            action={`/api/projects/${props.projectId}/pages`}
+            method="POST"
+            class={styl.Form}
+            slot="form"
+          >
+            <sl-input
+              name="name"
+              label="Name"
+              placeholder="My page name"
+              help-text="Set the name of your page"
+              autofocus
+              clearable
+              required
             >
-              <sl-input
-                name="name"
-                label="Name"
-                placeholder="My page name"
-                help-text="Set the name of your page"
-                autofocus
-                clearable
-                required
-              >
-              </sl-input>
+            </sl-input>
 
-              <sl-select
-                label="Page type"
-                name="type"
-                value="page"
-                help-text="Is it a page or a blog post?"
-                required
-              >
-                <sl-option value="page">Page</sl-option>
-                <sl-option value="post">Post</sl-option>
-              </sl-select>
+            <sl-select
+              label="Page type"
+              name="type"
+              value="page"
+              help-text="Is it a page or a blog post?"
+              required
+            >
+              <sl-option value="page">Page</sl-option>
+              <sl-option value="post">Post</sl-option>
+            </sl-select>
 
-              <span class={cx("error-message", styl.ErrorMessage)}></span>
-              <sl-button type="submit" variant="primary">
-                Create
-              </sl-button>
-            </form>
-
-            <sl-button slot="footer" variant="primary">Close</sl-button>
-          </sl-drawer>
-
-          <sl-button slot="button" variant="primary">Create page</sl-button>
+            <span class={cx("error-message", styl.ErrorMessage)}></span>
+            <sl-button type="submit" variant="primary">
+              Create
+            </sl-button>
+          </form>
         </fu-create-page-form>
       </div>
 
@@ -136,6 +131,8 @@ export default async function ProjectPage(props: ProjectPageProps) {
       >
         <PageList projectId={props.projectId} />
       </fu-page-list>
+
+      <fu-project-sse project-id={props.projectId}></fu-project-sse>
     </div>
   );
 }

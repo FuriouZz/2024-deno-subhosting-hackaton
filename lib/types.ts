@@ -30,6 +30,8 @@ export interface IPage {
   type: "post" | "page";
   name: string;
   body: string;
+  slug: string;
+  draft: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

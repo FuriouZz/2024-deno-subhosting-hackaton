@@ -1,9 +1,9 @@
 /// <reference lib="deno.unstable" />
 
 import { IUserPrefs } from "@/lib/types.ts";
-import { IPage } from "@/lib/types.ts";
+import { IDeployment, IPage } from "@/lib/types.ts";
 
-const kv = await Deno.openKv();
+const kv = await Deno.openKv("./tmp/db.sql");
 
 const createID = async (projectId: string, prefix: string) => {
   const key = [projectId, "metadata", prefix];
@@ -54,13 +54,16 @@ function createCRUD<T>(prefix: string) {
       return result;
     },
 
-    all(projectId: string) {
-      return kv.list<T>({ prefix: [projectId, prefix] });
+    all(projectId: string, options?: Deno.KvListOptions | undefined) {
+      return kv.list<T>({ prefix: [projectId, prefix] }, options);
     },
 
-    async allArray(projectId: string) {
+    async allArray(
+      projectId: string,
+      options?: Deno.KvListOptions | undefined,
+    ) {
       const entries: T[] = [];
-      for await (const entry of crud.all(projectId)) {
+      for await (const entry of crud.all(projectId, options)) {
         entries.push(entry.value);
       }
       return entries;
@@ -73,12 +76,38 @@ function createCRUD<T>(prefix: string) {
 export const PageModel = createCRUD<IPage>("pages");
 export const UserPrefsModel = createCRUD<IUserPrefs>("userprefs");
 
-export async function watchPages(
+export async function watchProject(
   projectId: string,
-  cb: (entries: IPage[]) => void,
+  hooks: {
+    onPageChanges: (entries: IPage[]) => void;
+    onDeploymentChanges: (entries: IDeployment[]) => void;
+  },
 ) {
-  for await (const _ of kv.watch([[projectId, "metadata", "pages"]])) {
-    const entries: IPage[] = await PageModel.allArray(projectId);
-    cb(entries);
+  const metadataKey = [projectId, "metadata", "pages"];
+  const deploymentsKey = [projectId, "deployments"];
+
+  for await (
+    const [pagesChange, deploymentsChange] of kv.watch([
+      metadataKey,
+      deploymentsKey,
+    ])
+  ) {
+    if (pagesChange.versionstamp !== null) {
+      const entries: IPage[] = await PageModel.allArray(projectId, {
+        reverse: true,
+      });
+      hooks.onPageChanges(entries);
+    }
+
+    if (deploymentsChange.value !== null) {
+      hooks.onDeploymentChanges(deploymentsChange.value! as IDeployment[]);
+    }
   }
+}
+
+export function updateDeployments(
+  projectId: string,
+  deployments: IDeployment[],
+) {
+  return kv.set([projectId, "deployments"], deployments);
 }

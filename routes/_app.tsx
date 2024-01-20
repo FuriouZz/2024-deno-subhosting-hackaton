@@ -1,7 +1,7 @@
 /** @jsx jsx */
-import { jsx } from "$hono/middleware.ts";
-import { Context } from "$hono/mod.ts";
-import { Style } from "$hono/helper/css/index.ts";
+import { jsx } from "hono/middleware.ts";
+import { Context } from "hono/mod.ts";
+import { Style } from "hono/helper/css/index.ts";
 
 export interface IAppProps {
   Component: () => JSX.Element;
@@ -37,7 +37,6 @@ export default async function App({ Component, context }: IAppProps) {
       </head>
       <body>
         <Component {...params} />
-        {/* <script src="live-reload.js"></script> */}
         <script async type="module" src="/main.js"></script>
       </body>
     </html>

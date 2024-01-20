@@ -1,10 +1,10 @@
 /** @jsx jsx */
-import { fromFileUrl } from "$std/path/from_file_url.ts";
-import { relative } from "$std/path/relative.ts";
-import { Context, Hono } from "$hono/mod.ts";
-import { jsx } from "$hono/jsx/index.ts";
-import { expandGlobSync } from "$lume/deps/fs.ts";
-import { dirname } from "$lume/deps/path.ts";
+import { fromFileUrl } from "std/path/from_file_url.ts";
+import { relative } from "std/path/relative.ts";
+import { Context, Hono } from "hono/mod.ts";
+import { jsx } from "hono/jsx/index.ts";
+import { expandGlobSync } from "lume/deps/fs.ts";
+import { dirname } from "lume/deps/path.ts";
 
 const app = new Hono();
 

@@ -6,6 +6,8 @@ import "@/islands/components/fu-create-page-form.js";
 import "@/islands/components/fu-save-page-form.js";
 import "@/islands/components/fu-page-list.js";
 import "@/islands/components/fu-alert.js";
+import "@/islands/components/fu-page-actions.js";
+import "@/islands/components/fu-project-sse.js";
 
 __USE_LIVE_RELOAD && new EventSource("/api/esbuild").addEventListener(
   "change",

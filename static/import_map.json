@@ -1,0 +1,7 @@
+{
+  "imports": {
+    "@codemirror/": "https://deno.land/x/codemirror_esm@v6.0.1/esm/",
+    "lit": "https://esm.sh/lit@3.1.1",
+    "lit/": "https://esm.sh/lit@3.1.1/"
+  }
+}

@@ -1,6 +1,6 @@
 import * as esbuild from "esbuild/mod.js";
 import { denoPlugins } from "esbuild_deno_loader/mod.ts";
-import { fromFileUrl } from "$lume/deps/path.ts";
+import { fromFileUrl } from "lume/deps/path.ts";
 
 const options: esbuild.BuildOptions = {
   plugins: [

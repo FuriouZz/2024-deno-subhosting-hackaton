@@ -1,8 +1,8 @@
-import { join } from "$std/path/join.ts";
-import { encodeBase64 } from "$hono/utils/encode.ts";
-import { extract } from "$lume/deps/front_matter.ts";
-import lume from "$lume/mod.ts";
-import { fromFileUrl } from "$lume/deps/path.ts";
+import { join } from "std/path/join.ts";
+import { encodeBase64 } from "hono/utils/encode.ts";
+import { extract } from "lume/deps/front_matter.ts";
+import lume from "lume/mod.ts";
+import { fromFileUrl } from "lume/deps/path.ts";
 
 interface IAsset {
   kind: "file" | "symlink";
@@ -13,19 +13,24 @@ interface IAsset {
 
 export default async function build({ themeURL, pages }: {
   themeURL: string;
-  pages: Record<string, { body: string; type: "post" | "page" }>;
+  pages: Record<string, { body: string; type: "post" | "page"; title: string }>;
 }) {
   const assets: Record<string, IAsset> = {};
 
   const { default: theme } = await import(themeURL);
-  const site = lume({ src: "./server/lume", dest: `./server/lume/_site` });
+  const site = lume({ src: "./lib/lume", dest: `./lib/lume/_site` });
   site.use(theme());
 
   // Register posts and stores urls
   const urls = Object.entries(pages).map(([url, value]) => {
-    const { attrs, body } = extract(value.body);
+    const valueBody = value.body.trim().startsWith("---")
+      ? value.body
+      : `---\n---\n${value.body}`;
+    const { attrs, body } = extract(valueBody);
     const scope = value.type === "post" ? "/posts" : "/pages";
-    site.page({ ...attrs, content: body, url }, scope);
+    console.log(scope);
+
+    site.page({ ...attrs, title: value.title, content: body, url }, scope);
     return url;
   });
 

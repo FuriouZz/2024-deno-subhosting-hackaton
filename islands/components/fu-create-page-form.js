@@ -5,6 +5,7 @@ globalThis.customElements.define(
   "fu-create-page-form",
   class extends LitElement {
     alertElement = createRef();
+    drawerElement = createRef();
 
     onSubmit = async (e) => {
       e.preventDefault();
@@ -28,7 +29,7 @@ globalThis.customElements.define(
         });
       } else {
         form.reset();
-        this.drawerElement?.hide();
+        this.drawerElement.value?.hide();
         this.alertElement.value?.toast({
           type: "success",
           title: "Page created",
@@ -37,30 +38,32 @@ globalThis.customElements.define(
     };
 
     openDrawer = () => {
-      this.drawerElement?.show();
+      console.log("open", this.drawerElement);
+      this.drawerElement.value?.show();
     };
 
-    onSlotButton = (e) => {
-      if (this.buttonElement) {
-        this.buttonElement.removeEventListener("click", this.openDrawer);
+    closeDrawer = () => {
+      this.drawerElement.value?.hide();
+    };
+
+    onSlotForm = (e) => {
+      if (this.formElement) {
+        this.formElement?.removeEventListener("submit", this.onSubmit);
       }
 
-      const button = e.currentTarget.assignedNodes({ flatten: true })[0];
-      this.buttonElement = button;
-      this.buttonElement.addEventListener("click", this.openDrawer);
-    };
-
-    onSlotDrawer = (e) => {
-      const drawer = e.currentTarget.assignedNodes({ flatten: true })[0];
-      this.drawerElement = drawer;
-      const form = drawer.querySelector("form");
-      form?.addEventListener("submit", this.onSubmit);
+      const form = e.currentTarget.assignedNodes({ flatten: true })[0];
+      this.formElement = form;
+      this.formElement?.addEventListener("submit", this.onSubmit);
     };
 
     render() {
       return html`
-        <slot name="drawer" @slotchange=${this.onSlotDrawer}></slot>
-        <slot name="button" @slotchange=${this.onSlotButton}></slot>
+        <sl-drawer label="Create a page" ${ref(this.drawerElement)}>
+          <slot name="form" @slotchange=${this.onSlotForm}></slot>
+          <sl-button slot="footer" variant="primary" @click=${this.closeDrawer}>Close</sl-button>
+        </sl-drawer>
+
+        <sl-button slot="button" variant="primary" @click=${this.openDrawer}>Create page</sl-button>
 
         <fu-alert ${ref(this.alertElement)}></fu-alert>
       `;
