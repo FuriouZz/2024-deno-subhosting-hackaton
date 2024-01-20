@@ -1,5 +1,5 @@
 import { html, LitElement } from "lit";
-import { milliseconds } from "@/src/lib/utils.js";
+import { milliseconds } from "@/islands/lib/utils.js";
 import { createRef, ref } from "lit/directives/ref.js";
 
 globalThis.customElements.define(

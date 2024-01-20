@@ -1,5 +1,5 @@
 import { html, LitElement } from "lit";
-import { createProject } from "@/src/lib/api.js";
+import { createProject } from "@/islands/lib/api.js";
 
 globalThis.customElements.define(
   "fu-create-project-form",

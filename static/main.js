@@ -27214,7 +27214,7 @@ function markdown(config2 = {}) {
   return new LanguageSupport(mkLang(parser5.configure(extensions)), support);
 }
 
-// src/codemirror/widget.js
+// islands/codemirror/widget.js
 var StrikeThroughWidget = class extends WidgetType {
   constructor(visibleVal) {
     super();
@@ -27266,7 +27266,7 @@ var FoldStrikeTags = ViewPlugin.fromClass(
   }
 );
 
-// src/components/fu-editor.js
+// islands/components/fu-editor.js
 var styles = p`
 :host {
   width: 100%;
@@ -27992,7 +27992,7 @@ var at = _(class extends c3 {
   }
 });
 
-// src/components/fu-select.js
+// islands/components/fu-select.js
 globalThis.customElements.define(
   "fu-select",
   class Select extends t {
@@ -28018,7 +28018,7 @@ globalThis.customElements.define(
   }
 );
 
-// src/lib/api.js
+// islands/lib/api.js
 function createProject(name2) {
   return fetch("/api/project", {
     method: "POST",
@@ -28026,7 +28026,7 @@ function createProject(name2) {
   });
 }
 
-// src/components/fu-create-project-form.js
+// islands/components/fu-create-project-form.js
 globalThis.customElements.define(
   "fu-create-project-form",
   class extends t {
@@ -28058,7 +28058,7 @@ globalThis.customElements.define(
   }
 );
 
-// src/components/fu-select-project-form.js
+// islands/components/fu-select-project-form.js
 globalThis.customElements.define(
   "fu-select-project-form",
   class extends t {
@@ -28081,7 +28081,7 @@ globalThis.customElements.define(
   }
 );
 
-// src/components/fu-create-page-form.js
+// islands/components/fu-create-page-form.js
 globalThis.customElements.define(
   "fu-create-page-form",
   class extends t {
@@ -28138,7 +28138,7 @@ globalThis.customElements.define(
   }
 );
 
-// src/lib/utils.js
+// islands/lib/utils.js
 function escapeHtml(html2) {
   const div = document.createElement("div");
   div.textContent = html2;
@@ -28152,7 +28152,7 @@ function milliseconds(ms) {
   });
 }
 
-// src/components/fu-save-page-form.js
+// islands/components/fu-save-page-form.js
 globalThis.customElements.define(
   "fu-save-page-form",
   class extends t {
@@ -28576,7 +28576,7 @@ var pt2 = _(class extends s {
   }
 });
 
-// src/components/fu-page-list.js
+// islands/components/fu-page-list.js
 var styles2 = p`
 :host {
   display: block;
@@ -28696,7 +28696,7 @@ globalThis.customElements.define(
   }
 );
 
-// src/components/fu-alert.js
+// islands/components/fu-alert.js
 globalThis.customElements.define(
   "fu-alert",
   class extends t {
@@ -28739,7 +28739,7 @@ globalThis.customElements.define(
   }
 );
 
-// src/main.js
+// islands/main.js
 new EventSource("/api/esbuild").addEventListener(
   "change",
   () => location.reload()

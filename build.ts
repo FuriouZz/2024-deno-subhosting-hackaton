@@ -8,7 +8,7 @@ const options: esbuild.BuildOptions = {
       configPath: fromFileUrl(import.meta.resolve("./deno.jsonc")),
     }),
   ],
-  entryPoints: ["./src/main.js"],
+  entryPoints: ["./islands/main.js"],
   outfile: "./static/main.js",
   bundle: true,
   format: "esm",

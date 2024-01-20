@@ -1,6 +1,6 @@
 import { createRef, ref } from "lit/directives/ref.js";
 import { html, LitElement } from "lit";
-import { escapeHtml } from "@/src/lib/utils.js";
+import { escapeHtml } from "@/islands/lib/utils.js";
 
 globalThis.customElements.define(
   "fu-alert",
