@@ -25,11 +25,18 @@ globalThis.customElements.define(
 
     static properties = {
       projectId: { attribute: "project-id" },
+      _drawerVisible: { type: Boolean },
       _previewURL: { type: String },
       _deployments: {},
     };
 
     drawerElement = createRef();
+    alertElement = createRef();
+
+    constructor() {
+      super();
+      this._drawerVisible = false;
+    }
 
     firstUpdated() {
       createEffect(() => this._deployments = DeployementsSignal());
@@ -40,8 +47,22 @@ globalThis.customElements.define(
 
       if (item.value === "deploy") {
         const response = await fetch(`/api/projects/${this.projectId}/deploy`);
-        const json = await response.json();
-        console.log(json);
+        const result = await response.json();
+
+        if (response.status >= 400) {
+          const { message } = result;
+
+          this.alertElement.value?.toast({
+            type: "error",
+            title: "An error occured",
+            description: message,
+          });
+        } else {
+          this.alertElement.value?.toast({
+            type: "success",
+            title: "Project deployed",
+          });
+        }
       } else if (item.value === "preview") {
         this.drawerElement.value?.show();
       }
@@ -64,25 +85,24 @@ globalThis.customElements.define(
         `;
       });
 
-      let previewURL = this._previewURL;
+      // let previewURL = this._previewURL;
 
-      if (!previewURL) {
-        const deployment = this._deployments.find((d) =>
-          Array.isArray(d.domains) && d.domains[0]
-        );
-        const url = deployment?.domains[0];
-        if (url) previewURL = `https://${url}`;
-      }
+      // if (!previewURL) {
+      //   const deployment = this._deployments.find((d) =>
+      //     Array.isArray(d.domains) && d.domains[0]
+      //   );
+      //   const url = deployment?.domains[0];
+      //   if (url) previewURL = `https://${url}`;
+      // }
 
-      // const iframe = previewURL
-      //   ? html`<iframe src="${previewURL}"></iframe>`
-      //   : nothing;
-      const iframe = nothing;
+      const iframe = this._previewURL //&& this._drawerVisible
+        ? html`<iframe src="${this._previewURL}"></iframe>`
+        : nothing;
 
       return html`
       <sl-dropdown placement="bottom-start">
-        <sl-button slot="trigger" size="small" circle>
-          <sl-icon label="More options" name="three-dots" library="default"></sl-icon>
+        <sl-button slot="trigger" caret>
+          Actions
         </sl-button>
 
         <sl-menu @sl-select=${this.onPreview}>
@@ -98,6 +118,8 @@ globalThis.customElements.define(
         </sl-dropdown>
         ${iframe}
       </sl-drawer>
+
+      <fu-alert ${ref(this.alertElement)}></fu-alert>
       `;
     }
   },

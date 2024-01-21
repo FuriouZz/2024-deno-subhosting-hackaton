@@ -88,6 +88,9 @@ export default async function ProjectPage(props: ProjectPageProps) {
         </div>
 
         <fu-create-page-form>
+          <fu-page-actions slot="actions" project-id={props.projectId}>
+          </fu-page-actions>
+
           <form
             action={`/api/projects/${props.projectId}/pages`}
             method="POST"

@@ -28123,7 +28123,8 @@ globalThis.customElements.define(
           <sl-button slot="footer" variant="primary" @click=${this.closeDrawer}>Close</sl-button>
         </sl-drawer>
 
-        <sl-button slot="button" variant="primary" @click=${this.openDrawer}>Create page</sl-button>
+        <slot name="actions"></slot>
+        <sl-button variant="primary" @click=${this.openDrawer}>Create page</sl-button>
 
         <fu-alert ${at(this.alertElement)}></fu-alert>
       `;
@@ -28967,10 +28968,16 @@ globalThis.customElements.define(
     static styles = styles4;
     static properties = {
       projectId: { attribute: "project-id" },
+      _drawerVisible: { type: Boolean },
       _previewURL: { type: String },
       _deployments: {}
     };
     drawerElement = lt();
+    alertElement = lt();
+    constructor() {
+      super();
+      this._drawerVisible = false;
+    }
     firstUpdated() {
       x4(() => this._deployments = DeployementsSignal());
     }
@@ -28978,8 +28985,20 @@ globalThis.customElements.define(
       const item = e3.detail.item;
       if (item.value === "deploy") {
         const response = await fetch(`/api/projects/${this.projectId}/deploy`);
-        const json = await response.json();
-        console.log(json);
+        const result = await response.json();
+        if (response.status >= 400) {
+          const { message } = result;
+          this.alertElement.value?.toast({
+            type: "error",
+            title: "An error occured",
+            description: message
+          });
+        } else {
+          this.alertElement.value?.toast({
+            type: "success",
+            title: "Project deployed"
+          });
+        }
       } else if (item.value === "preview") {
         this.drawerElement.value?.show();
       }
@@ -29000,20 +29019,11 @@ globalThis.customElements.define(
         <sl-menu-item value="https://${domain}">${domain}</sl-menu-item>
         `;
       });
-      let previewURL = this._previewURL;
-      if (!previewURL) {
-        const deployment = this._deployments.find(
-          (d6) => Array.isArray(d6.domains) && d6.domains[0]
-        );
-        const url = deployment?.domains[0];
-        if (url)
-          previewURL = `https://${url}`;
-      }
-      const iframe = A;
+      const iframe = this._previewURL ? X`<iframe src="${this._previewURL}"></iframe>` : A;
       return X`
       <sl-dropdown placement="bottom-start">
-        <sl-button slot="trigger" size="small" circle>
-          <sl-icon label="More options" name="three-dots" library="default"></sl-icon>
+        <sl-button slot="trigger" caret>
+          Actions
         </sl-button>
 
         <sl-menu @sl-select=${this.onPreview}>
@@ -29029,6 +29039,8 @@ globalThis.customElements.define(
         </sl-dropdown>
         ${iframe}
       </sl-drawer>
+
+      <fu-alert ${at(this.alertElement)}></fu-alert>
       `;
     }
   }

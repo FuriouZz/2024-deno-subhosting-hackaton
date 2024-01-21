@@ -22,7 +22,7 @@ export default async function build({ themeURL, pages, mode = "preview" }: {
   const { default: theme } = await import(themeURL);
   const site = lume({
     src: "./lib/lume",
-    dest: `./static/_site`,
+    dest: mode === "preview" ? `./static/_site` : "_site",
   });
   site.use(theme());
 

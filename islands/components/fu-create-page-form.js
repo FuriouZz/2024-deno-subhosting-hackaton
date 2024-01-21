@@ -63,7 +63,8 @@ globalThis.customElements.define(
           <sl-button slot="footer" variant="primary" @click=${this.closeDrawer}>Close</sl-button>
         </sl-drawer>
 
-        <sl-button slot="button" variant="primary" @click=${this.openDrawer}>Create page</sl-button>
+        <slot name="actions"></slot>
+        <sl-button variant="primary" @click=${this.openDrawer}>Create page</sl-button>
 
         <fu-alert ${ref(this.alertElement)}></fu-alert>
       `;
