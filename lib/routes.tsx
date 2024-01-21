@@ -6,6 +6,13 @@ import { jsx } from "hono/jsx/index.ts";
 import { expandGlobSync } from "lume/deps/fs.ts";
 import { dirname } from "lume/deps/path.ts";
 
+import "@/routes/_app.tsx";
+import "@/routes/index.tsx";
+import "@/routes/api/esbuild.ts";
+import "@/routes/api/projects.ts";
+import "@/routes/projects/[projectId]/index.tsx";
+import "@/routes/projects/[projectId]/pages/[pageId].tsx";
+
 const app = new Hono();
 
 const routePath = fromFileUrl(import.meta.resolve("../routes"));
