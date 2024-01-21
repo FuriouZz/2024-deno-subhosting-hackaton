@@ -4,7 +4,7 @@
   "tasks": {
     "serve": "deno run -A --unstable --env --watch=routes,components main.ts",
     "build": "deno run -A --env build.ts",
-    "dev": "deno task serve & deno task build --watch"
+    "dev": "deno task serve --dev & deno task build --watch"
   },
   "imports": {
     "hono/": "https://deno.land/x/hono@v3.12.4/",
