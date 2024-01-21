@@ -24,8 +24,13 @@ jobs:
           deno-version: v1.x
 
       - name: Create .env
+        env:
+          DEPLOY_ACCESS_TOKEN: ${{ secrets.DEPLOY_ACCESS_TOKEN }}
+          DEPLOY_ORG_ID: ${{ secrets.DEPLOY_ORG_ID }}
         run: |
-          echo "DEPLOY_ACCESS_TOKEN=${{ secrets.DEPLOY_ACCESS_TOKEN }}\nDEPLOY_ORG_ID=${{ secrets.DEPLOY_ORG_ID }}" > touch .env
+          touch .env
+          echo DEPLOY_ACCESS_TOKEN=${DEPLOY_ACCESS_TOKEN} >> .env
+          echo DEPLOY_ORG_ID=${DEPLOY_ORG_ID} >> .env
 
       - name: Build step
         run: deno task build
