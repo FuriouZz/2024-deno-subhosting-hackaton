@@ -74,15 +74,17 @@ globalThis.customElements.define(
         if (url) previewURL = `https://${url}`;
       }
 
-      const iframe = previewURL
-        ? html`<iframe src="${previewURL}"></iframe>`
-        : nothing;
+      // const iframe = previewURL
+      //   ? html`<iframe src="${previewURL}"></iframe>`
+      //   : nothing;
+      const iframe = nothing;
 
       return html`
       <sl-dropdown placement="bottom-start">
-        <sl-button slot="trigger" size="small" circle style="display: flex; justify-content: center; align-items:: center;">
-          <sl-icon label="More options" name="three-dots"></sl-icon>
+        <sl-button slot="trigger" size="small" circle>
+          <sl-icon label="More options" name="three-dots" library="default"></sl-icon>
         </sl-button>
+
         <sl-menu @sl-select=${this.onPreview}>
           <sl-menu-item value="deploy">Deploy</sl-menu-item>
           <sl-menu-item value="preview">Preview</sl-menu-item>

@@ -23,9 +23,10 @@ const styl = {
   `,
 
   Body: css`
-  --min: 350px;
+  --min: 25%;
   --max: calc(100% - 350px);
-  --divider-width: 20px;
+  --divider-width: 10px;
+  --divider-hit-area: 40px;
   flex: 1;
   `,
 
@@ -62,12 +63,32 @@ const styl = {
 
   SavingTab: css`
   display: none;
+
+  & > div {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  & > div > span {
+    font-size: var(--sl-font-size-small);
+  }
   `,
 
   IFrame: css`
   width: 100%;
   height: 100%;
   border: 0;
+  `,
+
+  EditButton: css`
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  `,
+
+  EditorContainer: css`
+  position: relative;
   `,
 };
 
@@ -78,105 +99,95 @@ export default async function ProjectPage(props: ProjectPageProps) {
   return (
     <div class={styl.Root}>
       <div class={styl.Header}>
-        <sl-breadcrumb>
-          <sl-breadcrumb-item href="/">
-            <sl-icon slot="prefix" name="house"></sl-icon>Home
-          </sl-breadcrumb-item>
-          <sl-breadcrumb-item href={`/projects/${props.projectId}`}>
-            Project
-          </sl-breadcrumb-item>
-          <sl-breadcrumb-item>
-            {page.type[0].toUpperCase() + page.type.slice(1)}
-            <fu-page-actions slot="suffix" project-id={props.projectId}>
-            </fu-page-actions>
-          </sl-breadcrumb-item>
-        </sl-breadcrumb>
+        <div style="display: flex; justify-content: space-between">
+          <sl-breadcrumb>
+            <sl-breadcrumb-item href="/">
+              <sl-icon slot="prefix" name="house"></sl-icon>Home
+            </sl-breadcrumb-item>
+            <sl-breadcrumb-item href={`/projects/${props.projectId}`}>
+              Project
+            </sl-breadcrumb-item>
+            <sl-breadcrumb-item>
+              {page.type[0].toUpperCase() + page.type.slice(1)}
+            </sl-breadcrumb-item>
+          </sl-breadcrumb>
+
+          <div
+            slot="suffix"
+            id="saving-tab"
+            class={styl.SavingTab}
+          >
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <span>
+                Saving...
+              </span>
+              <sl-spinner size="small"></sl-spinner>
+            </div>
+          </div>
+        </div>
+
         <sl-divider></sl-divider>
       </div>
 
-      <sl-split-panel class={styl.Body}>
+      <sl-split-panel class={styl.Body} snap="25% 50% 75%">
         <sl-icon slot="divider" name="grip-vertical"></sl-icon>
 
         <fu-save-page-form
           slot="start"
           page-id={props.pageId}
           project-id={props.projectId}
+          iframe-selector=".preview"
           class={styl.Form}
-          style="height: 100%;"
         >
-          <form
-            action={`/api/projects/${props.projectId}/pages/${props.pageId}`}
-            method="POST"
-            id="save-page"
-            style="height: 100%;"
-          >
-            <input type="hidden" name="_method" value="put" />
+          <template
+            slot="page-body"
+            dangerouslySetInnerHTML={{ __html: page.body }}
+          />
 
-            <sl-tab-group style="height: 100%;">
-              <sl-tab slot="nav" panel="editor" active>Editor</sl-tab>
-              <sl-tab slot="nav" panel="metadata">Metadata</sl-tab>
-              <sl-tab
-                slot="nav"
-                panel="metadata"
-                class={cx("saving-tab", styl.SavingTab)}
-                disabled
+          <sl-drawer slot="drawer">
+            <div class={styl.Inputs}>
+              <sl-input
+                name="name"
+                label="Name"
+                placeholder="My page name"
+                value={page.name}
+                data-input-change
+                autofocus
+                required
               >
-                <div style="display: flex; gap: 0.5rem; align-items: center;">
-                  <span>Saving...</span>
-                  <sl-spinner></sl-spinner>
-                </div>
-              </sl-tab>
+              </sl-input>
 
-              <sl-tab-panel name="editor" class={styl.EditorPanel}>
-                <fu-editor form-selector="#save-page">
-                  <template
-                    dangerouslySetInnerHTML={{ __html: page.body }}
-                  />
-                </fu-editor>
-              </sl-tab-panel>
+              <sl-select
+                label="Page type"
+                name="type"
+                data-input-change
+                value={page.type}
+                required
+              >
+                <sl-option value="page">Page</sl-option>
+                <sl-option value="post">Post</sl-option>
+              </sl-select>
 
-              <sl-tab-panel name="metadata">
-                <div class={styl.Inputs}>
-                  <sl-input
-                    name="name"
-                    label="Name"
-                    placeholder="My page name"
-                    value={page.name}
-                    autofocus
-                    required
-                  >
-                  </sl-input>
+              <sl-checkbox
+                name="draft"
+                data-input-change
+                checked={page.draft}
+              >
+                Draft
+              </sl-checkbox>
 
-                  <sl-select
-                    label="Page type"
-                    name="type"
-                    value={page.type}
-                    required
-                  >
-                    <sl-option value="page">Page</sl-option>
-                    <sl-option value="post">Post</sl-option>
-                  </sl-select>
+              <span class={cx("error-message", styl.ErrorMessage)}></span>
 
-                  <sl-checkbox
-                    name="draft"
-                    checked={page.draft}
-                  >
-                    Draft
-                  </sl-checkbox>
-
-                  <span class={cx("error-message", styl.ErrorMessage)}>
-                  </span>
-
-                  <sl-button type="submit" variant="primary">Save</sl-button>
-                  <sl-button variant="danger" outline>Delete</sl-button>
-                </div>
-              </sl-tab-panel>
-            </sl-tab-group>
-          </form>
+              <sl-button variant="danger" outline>Delete</sl-button>
+            </div>
+          </sl-drawer>
         </fu-save-page-form>
 
         <div slot="end">
-          <iframe class={styl.IFrame} src="https://blog.chrsmsln.com/">
+          <iframe
+            class={cx(styl.IFrame, "preview")}
+            src={`/lume/${page.type}s/${page.slug}`}
+          >
           </iframe>
         </div>
       </sl-split-panel>

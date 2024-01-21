@@ -6,7 +6,16 @@ import routes from "@/lib/routes.tsx";
 const app = new Hono();
 
 app.route("/", routes);
-app.use("/*", serveStatic({ root: "./static" }));
+
+app.use(
+  "/*",
+  serveStatic({
+    root: "./static",
+    rewriteRequestPath(path) {
+      return path.replace(/^\/lume/, "/_site");
+    },
+  }),
+);
 
 showRoutes(app);
 

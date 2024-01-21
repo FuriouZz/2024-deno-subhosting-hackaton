@@ -11466,8 +11466,8 @@ var _supportsTabSize = null;
 function supportsTabSize() {
   var _a2;
   if (_supportsTabSize == null && typeof document != "undefined" && document.body) {
-    let styles4 = document.body.style;
-    _supportsTabSize = ((_a2 = styles4.tabSize) !== null && _a2 !== void 0 ? _a2 : styles4.MozTabSize) != null;
+    let styles5 = document.body.style;
+    _supportsTabSize = ((_a2 = styles5.tabSize) !== null && _a2 !== void 0 ? _a2 : styles5.MozTabSize) != null;
   }
   return _supportsTabSize || false;
 }
@@ -21881,7 +21881,7 @@ var MarkdownParser = class _MarkdownParser extends Parser {
     let blockParsers = this.blockParsers.slice(), leafBlockParsers = this.leafBlockParsers.slice(), blockNames = this.blockNames.slice(), inlineParsers = this.inlineParsers.slice(), inlineNames = this.inlineNames.slice(), endLeafBlock = this.endLeafBlock.slice(), wrappers = this.wrappers;
     if (nonEmpty(config2.defineNodes)) {
       skipContextMarkup = Object.assign({}, skipContextMarkup);
-      let nodeTypes2 = nodeSet.types.slice(), styles4;
+      let nodeTypes2 = nodeSet.types.slice(), styles5;
       for (let s2 of config2.defineNodes) {
         let { name: name2, block, composite, style } = typeof s2 == "string" ? { name: s2 } : s2;
         if (nodeTypes2.some((t3) => t3.name == name2))
@@ -21896,17 +21896,17 @@ var MarkdownParser = class _MarkdownParser extends Parser {
           props: group && [[NodeProp.group, group]]
         }));
         if (style) {
-          if (!styles4)
-            styles4 = {};
+          if (!styles5)
+            styles5 = {};
           if (Array.isArray(style) || style instanceof Tag)
-            styles4[name2] = style;
+            styles5[name2] = style;
           else
-            Object.assign(styles4, style);
+            Object.assign(styles5, style);
         }
       }
       nodeSet = new NodeSet(nodeTypes2);
-      if (styles4)
-        nodeSet = nodeSet.extend(styleTags(styles4));
+      if (styles5)
+        nodeSet = nodeSet.extend(styleTags(styles5));
     }
     if (nonEmpty(config2.props))
       nodeSet = nodeSet.extend(...config2.props);
@@ -27282,9 +27282,6 @@ globalThis.customElements.define(
   "fu-editor",
   class Editor extends t {
     static styles = styles;
-    static properties = {
-      formSelector: { attribute: "form-selector", type: String }
-    };
     firstUpdated() {
       this.view = new EditorView({
         extensions: [
@@ -27305,13 +27302,6 @@ globalThis.customElements.define(
         lol
         ~~yolo~~
             `
-      });
-    }
-    updated() {
-      const form = document.querySelector(this.formSelector);
-      form?.addEventListener("formdata", (e3) => {
-        const data2 = e3.formData;
-        data2.set("body", this.view.state.doc.toString());
       });
     }
     onSlotChange(e3) {
@@ -28144,7 +28134,7 @@ globalThis.customElements.define(
 // islands/lib/utils.js
 function escapeHtml(html2) {
   const div = document.createElement("div");
-  div.textContent = html2;
+  div.innerHTML = html2;
   return div.innerHTML;
 }
 function milliseconds(ms) {
@@ -28156,32 +28146,95 @@ function milliseconds(ms) {
 }
 
 // islands/components/fu-save-page-form.js
+var styles2 = p`
+:host {
+  display: block;
+}
+
+.edit-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
+.editor-container {
+  position: relative;
+}
+`;
 globalThis.customElements.define(
   "fu-save-page-form",
   class extends t {
+    static styles = styles2;
     static properties = {
       delay: { type: Number },
       pageId: { attribute: "page-id" },
       projectId: { attribute: "project-id" },
+      iframeSelector: { attribute: "iframe-selector" },
+      _body: { type: String },
       _changed: { type: Boolean }
     };
     constructor() {
       super();
       this.delay = 3e3;
     }
+    _id = -1;
+    /** @type {import("lit/directives/ref.js").Ref<HTMLElement>} */
     alertElement = lt();
+    /** @type {import("lit/directives/ref.js").Ref<HTMLSlotElement>} */
+    drawerSlot = lt();
+    /** @type {import("lit/directives/ref.js").Ref<HTMLSlotElement>} */
+    pageBodySlot = lt();
+    /** @type {import("lit/directives/ref.js").Ref<HTMLFormElement>} */
+    formElement = lt();
+    editorElement = lt();
+    firstUpdated() {
+      globalThis.addEventListener("keydown", (e3) => {
+        if ((e3.ctrlKey || e3.metaKey) && e3.key === "s") {
+          e3.preventDefault();
+          this.publish();
+        }
+      });
+      const drawer = this.drawerSlot.value.assignedElements({ flatten: true })[0];
+      const elements = drawer.querySelectorAll(
+        "[data-input-change]"
+      );
+      elements.forEach((element) => {
+        element.addEventListener("sl-input", this.triggerChange);
+        this.formElement.value.addEventListener("formdata", (e3) => {
+          const data2 = e3.formData;
+          if (element.name === "draft") {
+            data2.set(element.name, element.checked);
+          } else {
+            data2.set(element.name, element.value);
+          }
+        });
+      });
+      drawer.querySelector("sl-button[variant=danger]").addEventListener("click", this.onDeletePage);
+    }
     onSubmit = (e3) => {
       e3.preventDefault();
       this.publish();
     };
+    triggerChange = () => {
+      this._changed = true;
+      clearTimeout(this._id);
+      this._id = setTimeout(() => this.publish(), this.delay);
+    };
     async publish() {
-      const form = this.formElement;
+      if (!this._changed)
+        return;
+      this._changed = false;
+      const form = this.formElement.value;
       if (!form)
         return;
-      const tab = form.querySelector(".saving-tab");
+      const tab = document.querySelector("#saving-tab");
       if (tab)
         tab.style.display = "block";
       const body = new FormData(form);
+      body.set(
+        "body",
+        this.editorElement.value.view.state.doc.toString()
+      );
       try {
         const response = await fetch(form.action, { method: "put", body });
         if (response.status >= 400) {
@@ -28197,39 +28250,21 @@ globalThis.customElements.define(
             title: "Changes saved"
           });
         }
+        const iframe = this.parentElement?.querySelector(this.iframeSelector);
+        if (iframe) {
+          const page = await response.json();
+          const src = `/lume/${page.type}s/${page.slug}`;
+          if (iframe.src === src) {
+            iframe.contentWindow.location.reload();
+          } else {
+            iframe.src = src;
+          }
+        }
       } finally {
-        await milliseconds(1e3);
+        await milliseconds(500);
         if (tab)
           tab.style.display = "";
       }
-    }
-    /**
-     * Fetch form and its inputs
-     */
-    onSlotChange(e3) {
-      this.removeListeners?.();
-      const nodes = e3.currentTarget.assignedNodes({ flatten: true });
-      const form = nodes.find((node) => node instanceof HTMLFormElement);
-      form.addEventListener("submit", this.onSubmit);
-      this.formElement = form;
-      const deleteBtn = form.querySelector("sl-button[variant=danger]");
-      deleteBtn?.addEventListener("click", this.onDeletePage);
-      let id2 = -1;
-      const elements = form.querySelectorAll("sl-input, sl-select, fu-editor");
-      elements.forEach((element) => {
-        const triggerChange2 = () => {
-          clearTimeout(id2);
-          id2 = setTimeout(() => this.publish(), this.delay);
-        };
-        element.addEventListener("sl-input", triggerChange2);
-      });
-      this.removeListeners = () => {
-        form.removeEventListener("submit", this.onSubmit);
-        deleteBtn?.removeEventListener("click", this.onDeletePage);
-        elements.forEach((element) => {
-          element.removeEventListener("sl-input", triggerChange);
-        });
-      };
     }
     onDeletePage = async () => {
       const response = await fetch(
@@ -28253,11 +28288,41 @@ globalThis.customElements.define(
         window.location.href = `/projects/${this.projectId}`;
       }
     };
+    openDrawer = () => {
+      this.drawerSlot.value?.assignedElements({
+        flatten: true
+      })[0]?.show?.();
+    };
     render() {
       return X`
-        <slot @slotchange=${this.onSlotChange}></slot>
+      <form
+        action="${`/api/projects/${this.projectId}/pages/${this.pageId}`}"
+        method="POST"
+        id="save-page"
+        style="height: 100%;"
+        @submit=${this.onSubmit}
+        ${at(this.formElement)}
+      >
+        <input type="hidden" name="_method" value="put" />
 
-        <fu-alert ${at(this.alertElement)}></fu-alert>
+        <div class="editor-container">
+          <fu-editor @sl-input=${this.triggerChange} ${at(this.editorElement)}>
+            <slot name="page-body"></slot>
+          </fu-editor>
+
+          <sl-button
+            class="edit-button"
+            size="small"
+            @click="${this.openDrawer}"
+          >
+            Edit metadata
+          </sl-button>
+
+          <slot name="drawer" ${at(this.drawerSlot)}></slot>
+        </div>
+      </form>
+
+      <fu-alert ${at(this.alertElement)}></fu-alert>
       `;
     }
   }
@@ -28742,7 +28807,7 @@ var PagesSignal = f8([]);
 var DeployementsSignal = f8([]);
 
 // islands/components/fu-page-list.js
-var styles2 = p`
+var styles3 = p`
 :host {
   display: block;
   min-width: 400px;
@@ -28773,7 +28838,7 @@ sup {
 globalThis.customElements.define(
   "fu-page-list",
   class extends t {
-    static styles = styles2;
+    static styles = styles3;
     static properties = {
       projectId: { attribute: "project-id" },
       _pages: {}
@@ -28884,7 +28949,7 @@ globalThis.customElements.define(
 );
 
 // islands/components/fu-page-actions.js
-var styles3 = p`
+var styles4 = p`
 iframe {
   width: 100%;
   height: 100%;
@@ -28899,7 +28964,7 @@ sl-drawer {
 globalThis.customElements.define(
   "fu-page-actions",
   class extends t {
-    static styles = styles3;
+    static styles = styles4;
     static properties = {
       projectId: { attribute: "project-id" },
       _previewURL: { type: String },
@@ -28944,12 +29009,13 @@ globalThis.customElements.define(
         if (url)
           previewURL = `https://${url}`;
       }
-      const iframe = previewURL ? X`<iframe src="${previewURL}"></iframe>` : A;
+      const iframe = A;
       return X`
       <sl-dropdown placement="bottom-start">
-        <sl-button slot="trigger" size="small" circle style="display: flex; justify-content: center; align-items:: center;">
-          <sl-icon label="More options" name="three-dots"></sl-icon>
+        <sl-button slot="trigger" size="small" circle>
+          <sl-icon label="More options" name="three-dots" library="default"></sl-icon>
         </sl-button>
+
         <sl-menu @sl-select=${this.onPreview}>
           <sl-menu-item value="deploy">Deploy</sl-menu-item>
           <sl-menu-item value="preview">Preview</sl-menu-item>

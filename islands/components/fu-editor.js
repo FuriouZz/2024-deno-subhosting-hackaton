@@ -20,10 +20,6 @@ globalThis.customElements.define(
   class Editor extends LitElement {
     static styles = styles;
 
-    static properties = {
-      formSelector: { attribute: "form-selector", type: String },
-    };
-
     firstUpdated() {
       this.view = new EditorView({
         extensions: [
@@ -45,15 +41,6 @@ globalThis.customElements.define(
         lol
         ~~yolo~~
             `,
-      });
-    }
-
-    updated() {
-      const form = document.querySelector(this.formSelector);
-      form?.addEventListener("formdata", (e) => {
-        /** @type {FormData} */
-        const data = e.formData;
-        data.set("body", this.view.state.doc.toString());
       });
     }
 

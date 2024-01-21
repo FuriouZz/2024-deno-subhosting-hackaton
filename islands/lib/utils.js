@@ -4,7 +4,7 @@
  */
 export function escapeHtml(html) {
   const div = document.createElement("div");
-  div.textContent = html;
+  div.innerHTML = html;
   return div.innerHTML;
 }
 
@@ -17,12 +17,4 @@ export function milliseconds(ms) {
       resolve();
     }, ms);
   });
-}
-
-export function sucessAlert() {
-  // <sl-alert variant="danger" closable>
-  //   <sl-icon slot="icon" name="exclamation-octagon"></sl-icon>
-  //   <strong>Changes cannot be saved.</strong><br />
-  //   <span class="message"></span>
-  // </sl-alert>
 }

@@ -38,7 +38,7 @@ junit.xml
 Untitled*.ipynb
 
 # lume files
-lib/lume/_site
+_site
 
 # client files
 .vite

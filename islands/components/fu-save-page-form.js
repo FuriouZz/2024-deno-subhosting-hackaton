@@ -1,14 +1,34 @@
-import { html, LitElement } from "lit";
-import { milliseconds } from "@/islands/lib/utils.js";
+import { css, html, LitElement, nothing } from "lit";
 import { createRef, ref } from "lit/directives/ref.js";
+import { milliseconds } from "@/islands/lib/utils.js";
+
+const styles = css`
+:host {
+  display: block;
+}
+
+.edit-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
+.editor-container {
+  position: relative;
+}
+`;
 
 globalThis.customElements.define(
   "fu-save-page-form",
   class extends LitElement {
+    static styles = styles;
+
     static properties = {
       delay: { type: Number },
       pageId: { attribute: "page-id" },
       projectId: { attribute: "project-id" },
+      iframeSelector: { attribute: "iframe-selector" },
+      _body: { type: String },
       _changed: { type: Boolean },
     };
 
@@ -17,21 +37,85 @@ globalThis.customElements.define(
       this.delay = 3000;
     }
 
+    _id = -1;
+
+    /** @type {import("lit/directives/ref.js").Ref<HTMLElement>} */
     alertElement = createRef();
+
+    /** @type {import("lit/directives/ref.js").Ref<HTMLSlotElement>} */
+    drawerSlot = createRef();
+
+    /** @type {import("lit/directives/ref.js").Ref<HTMLSlotElement>} */
+    pageBodySlot = createRef();
+
+    /** @type {import("lit/directives/ref.js").Ref<HTMLFormElement>} */
+    formElement = createRef();
+
+    editorElement = createRef();
+
+    firstUpdated() {
+      // CMD/Ctrl + S
+      globalThis.addEventListener("keydown", (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+          e.preventDefault();
+          this.publish();
+        }
+      });
+
+      // Listen input changes
+      const drawer =
+        this.drawerSlot.value.assignedElements({ flatten: true })[0];
+
+      const elements = drawer.querySelectorAll(
+        "[data-input-change]",
+      );
+
+      elements.forEach((element) => {
+        element.addEventListener("sl-input", this.triggerChange);
+
+        this.formElement.value.addEventListener("formdata", (e) => {
+          const data = e.formData;
+          if (element.name === "draft") {
+            data.set(element.name, element.checked);
+          } else {
+            data.set(element.name, element.value);
+          }
+        });
+      });
+
+      // Listen delete button
+      drawer
+        .querySelector("sl-button[variant=danger]")
+        .addEventListener("click", this.onDeletePage);
+    }
 
     onSubmit = (e) => {
       e.preventDefault();
       this.publish();
     };
 
+    triggerChange = () => {
+      this._changed = true;
+      clearTimeout(this._id);
+      this._id = setTimeout(() => this.publish(), this.delay);
+    };
+
     async publish() {
-      const form = this.formElement;
+      if (!this._changed) return;
+      this._changed = false;
+
+      const form = this.formElement.value;
       if (!form) return;
 
-      const tab = form.querySelector(".saving-tab");
+      const tab = document.querySelector("#saving-tab");
       if (tab) tab.style.display = "block";
 
       const body = new FormData(form);
+      body.set(
+        "body",
+        this.editorElement.value.view.state.doc.toString(),
+      );
+
       try {
         const response = await fetch(form.action, { method: "put", body });
 
@@ -49,46 +133,22 @@ globalThis.customElements.define(
             title: "Changes saved",
           });
         }
+
+        /** @type {HTMLIFrameElement} */
+        const iframe = this.parentElement?.querySelector(this.iframeSelector);
+        if (iframe) {
+          const page = await response.json();
+          const src = `/lume/${page.type}s/${page.slug}`;
+          if (iframe.src === src) {
+            iframe.contentWindow.location.reload();
+          } else {
+            iframe.src = src;
+          }
+        }
       } finally {
-        await milliseconds(1000);
+        await milliseconds(500);
         if (tab) tab.style.display = "";
       }
-    }
-
-    /**
-     * Fetch form and its inputs
-     */
-    onSlotChange(e) {
-      this.removeListeners?.();
-
-      const nodes = e.currentTarget.assignedNodes({ flatten: true });
-
-      /** @type {HTMLFormElement} */
-      const form = nodes.find((node) => node instanceof HTMLFormElement);
-      form.addEventListener("submit", this.onSubmit);
-      this.formElement = form;
-
-      const deleteBtn = form.querySelector("sl-button[variant=danger]");
-      deleteBtn?.addEventListener("click", this.onDeletePage);
-
-      let id = -1;
-      const elements = form.querySelectorAll("sl-input, sl-select, fu-editor");
-
-      elements.forEach((element) => {
-        const triggerChange = () => {
-          clearTimeout(id);
-          id = setTimeout(() => this.publish(), this.delay);
-        };
-        element.addEventListener("sl-input", triggerChange);
-      });
-
-      this.removeListeners = () => {
-        form.removeEventListener("submit", this.onSubmit);
-        deleteBtn?.removeEventListener("click", this.onDeletePage);
-        elements.forEach((element) => {
-          element.removeEventListener("sl-input", triggerChange);
-        });
-      };
     }
 
     onDeletePage = async () => {
@@ -117,11 +177,44 @@ globalThis.customElements.define(
       }
     };
 
+    openDrawer = () => {
+      this.drawerSlot.value
+        ?.assignedElements({
+          flatten: true,
+        })[0]
+        ?.show?.();
+    };
+
     render() {
       return html`
-        <slot @slotchange=${this.onSlotChange}></slot>
+      <form
+        action="${`/api/projects/${this.projectId}/pages/${this.pageId}`}"
+        method="POST"
+        id="save-page"
+        style="height: 100%;"
+        @submit=${this.onSubmit}
+        ${ref(this.formElement)}
+      >
+        <input type="hidden" name="_method" value="put" />
 
-        <fu-alert ${ref(this.alertElement)}></fu-alert>
+        <div class="editor-container">
+          <fu-editor @sl-input=${this.triggerChange} ${ref(this.editorElement)}>
+            <slot name="page-body"></slot>
+          </fu-editor>
+
+          <sl-button
+            class="edit-button"
+            size="small"
+            @click="${this.openDrawer}"
+          >
+            Edit metadata
+          </sl-button>
+
+          <slot name="drawer" ${ref(this.drawerSlot)}></slot>
+        </div>
+      </form>
+
+      <fu-alert ${ref(this.alertElement)}></fu-alert>
       `;
     }
   },

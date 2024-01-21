@@ -3,6 +3,7 @@ import { encodeBase64 } from "hono/utils/encode.ts";
 import { extract } from "lume/deps/front_matter.ts";
 import lume from "lume/mod.ts";
 import { fromFileUrl } from "lume/deps/path.ts";
+import modifyUrls from "lume/plugins/modify_urls.ts";
 
 interface IAsset {
   kind: "file" | "symlink";
@@ -11,26 +12,47 @@ interface IAsset {
   gitSha1?: string;
 }
 
-export default async function build({ themeURL, pages }: {
+export default async function build({ themeURL, pages, mode = "preview" }: {
   themeURL: string;
   pages: Record<string, { body: string; type: "post" | "page"; title: string }>;
+  mode?: "assets" | "preview";
 }) {
   const assets: Record<string, IAsset> = {};
 
   const { default: theme } = await import(themeURL);
-  const site = lume({ src: "./lib/lume", dest: `./lib/lume/_site` });
+  const site = lume({
+    src: "./lib/lume",
+    dest: `./static/_site`,
+  });
   site.use(theme());
 
+  if (mode === "preview") {
+    site.use(modifyUrls({
+      fn: (url) => {
+        console.log(url, `/lume${url}`);
+        return `/lume${url}`;
+      },
+    }));
+  }
+
   // Register posts and stores urls
-  const urls = Object.entries(pages).map(([url, value]) => {
+  const urls = Object.entries(pages).map(([url, value], index) => {
     const valueBody = value.body.trim().startsWith("---")
       ? value.body
       : `---\n---\n${value.body}`;
     const { attrs, body } = extract(valueBody);
-    const scope = value.type === "post" ? "/posts" : "/pages";
-    console.log(scope);
 
-    site.page({ ...attrs, title: value.title, content: body, url }, scope);
+    if (value.type === "post") {
+      site.page({ ...attrs, title: value.title, content: body, url }, "/posts");
+    } else if (value.type === "page") {
+      site.page({
+        ...attrs,
+        title: value.title,
+        content: body,
+        url,
+        menu: { visible: true, order: index },
+      }, "/pages");
+    }
     return url;
   });
 

@@ -11,6 +11,18 @@ const app = new Hono();
 const client = new SubhostingClient();
 const slug = createSlugifier();
 
+async function getPages(projectId: string) {
+  const pages = await PageModel.allArray(projectId);
+  return Object.fromEntries(pages.map((page) => [
+    `/${page.type}s/${slug(page.name)}/`,
+    {
+      body: page.body,
+      type: page.type,
+      title: page.name,
+    },
+  ]));
+}
+
 // Get project list
 app.get("/", async (ctx) => {
   const projects = await (await client.listProjects()).json();
@@ -82,9 +94,17 @@ app.put("/:projectId/pages/:pageId", async (ctx) => {
 
   page.slug = slug(page.name);
 
-  const result = await PageModel.put(projectId, Number(pageId), page);
+  // Update page
+  await PageModel.put(projectId, Number(pageId), page);
 
-  return ctx.json(result);
+  // Build preview
+  await build({
+    mode: "preview",
+    themeURL: "https://deno.land/x/furiouzz@0.0.12/lume-blog-theme/mod.ts",
+    pages: await getPages(projectId),
+  });
+
+  return ctx.json(page);
 });
 
 app.delete("/:projectId/pages/:pageId", async (ctx) => {
@@ -102,24 +122,12 @@ app.delete("/:projectId/pages/:pageId", async (ctx) => {
 app.get("/:projectId/deploy", async (ctx) => {
   const { projectId } = ctx.req.param();
 
-  const pages = await PageModel.allArray(projectId).then((pages) => {
-    return Object.fromEntries(
-      pages.map((page) => {
-        return [`/${slug(page.name)}/`, {
-          body: page.body,
-          type: page.type,
-          title: page.type,
-        }];
-      }),
-    );
-  });
-
   const assets = await build({
+    mode: "assets",
     themeURL: "https://deno.land/x/furiouzz@0.0.12/lume-blog-theme/mod.ts",
-    pages,
+    pages: await getPages(projectId),
   });
 
-  // return new Response("cool");
   const dr = await client.createDeployment(projectId, {
     entryPointUrl: "main.ts",
     assets,
