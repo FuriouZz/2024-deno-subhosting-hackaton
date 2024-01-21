@@ -14,8 +14,6 @@ const files = expandGlobSync(`${routePath}/**/*`);
 
 for (const file of files) {
   if (file.isFile && /(j|t)sx?$/.test(file.name)) {
-    file.path;
-
     let path = relative(
       routePath,
       file.path,
@@ -31,9 +29,15 @@ for (const file of files) {
     }
 
     if (/^index\.(j|t)sx?$/.test(file.name)) {
-      routes.set(`/${dirname(path).replace(".", "")}`, file.path);
+      routes.set(
+        `/${dirname(path).replace(".", "")}`,
+        relative(fromFileUrl(import.meta.resolve("./")), file.path),
+      );
     } else {
-      routes.set(`/${path.replace(/\.(j|t)sx?$/, "")}`, file.path);
+      routes.set(
+        `/${path.replace(/\.(j|t)sx?$/, "")}`,
+        relative(fromFileUrl(import.meta.resolve("./")), file.path),
+      );
     }
   }
 }

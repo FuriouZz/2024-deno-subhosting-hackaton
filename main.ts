@@ -1,5 +1,4 @@
 import { Hono } from "hono/mod.ts";
-import { showRoutes } from "hono/helper/dev/index.ts";
 import { serveStatic } from "hono/middleware.ts";
 import routes from "@/lib/routes.tsx";
 
@@ -17,6 +16,10 @@ app.use(
   }),
 );
 
-showRoutes(app);
+if (Deno.args.includes("--dev")) {
+  import("hono/helper/dev/index.ts").then(({ showRoutes }) => {
+    showRoutes(app);
+  });
+}
 
 Deno.serve(app.fetch);
